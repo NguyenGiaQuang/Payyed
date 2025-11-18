@@ -26,6 +26,11 @@ Customer.belongsTo(User, { foreignKey: 'user_id' });
 Customer.hasMany(Account, { foreignKey: 'customer_id' });
 Account.belongsTo(Customer, { foreignKey: 'customer_id' });
 
+// RBAC m:n
+UserRole.belongsTo(User, { foreignKey: 'user_id' });
+UserRole.belongsTo(Role, { foreignKey: 'role_id' });
+User.belongsToMany(Role, { through: UserRole, foreignKey: 'user_id', otherKey: 'role_id' });
+Role.belongsToMany(User, { through: UserRole, foreignKey: 'role_id', otherKey: 'user_id' });
 
 // ready to use
 export default {
