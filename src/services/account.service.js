@@ -36,7 +36,6 @@ async function ensureCanViewAccount(account, userId) {
     }
 }
 
-// 13) GET /api/accounts – danh sách tài khoản của user hiện tại
 export async function listMyAccounts(userId) {
     const customer = await Customer.findOne({ where: { user_id: userId } });
     if (!customer) throw createError(404, 'Không tìm thấy khách hàng');
@@ -47,7 +46,6 @@ export async function listMyAccounts(userId) {
     });
 }
 
-// 14) GET /api/accounts/:id – xem chi tiết
 export async function getAccountDetail(accountId, userId) {
     const account = await Account.findByPk(accountId);
     if (!account) throw createError(404, 'Không tìm thấy tài khoản');
@@ -56,7 +54,6 @@ export async function getAccountDetail(accountId, userId) {
     return account;
 }
 
-// 15) POST /api/accounts – Staff/Admin tạo account cho customer
 export async function openAccount({ customer_id, account_no, type, currency }) {
     const exists = await Account.findOne({ where: { account_no } });
     if (exists) throw createError(409, 'Số tài khoản đã tồn tại');
@@ -78,7 +75,6 @@ export async function openAccount({ customer_id, account_no, type, currency }) {
     return acc;
 }
 
-// 16) PATCH /api/accounts/:id/status – Admin
 export async function updateAccountStatus(accountId, status) {
     const account = await Account.findByPk(accountId);
     if (!account) throw createError(404, 'Không tìm thấy tài khoản');
@@ -101,7 +97,6 @@ export async function updateAccountStatus(accountId, status) {
     return account;
 }
 
-// 17) GET /api/accounts/:id/statement – sao kê
 export async function getAccountStatement(accountId, { from, to }, userId) {
     const account = await Account.findByPk(accountId);
     if (!account) throw createError(404, 'Không tìm thấy tài khoản');

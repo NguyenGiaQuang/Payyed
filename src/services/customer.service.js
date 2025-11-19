@@ -43,7 +43,6 @@ export async function getCustomerDetail(customerId) {
     return customer;
 }
 
-// 9) Cập nhật hồ sơ cho chính mình (Customer)
 export async function updateMyProfile(userId, payload) {
     const customer = await Customer.findOne({ where: { user_id: userId } });
     if (!customer) throw createError(404, 'Không tìm thấy khách hàng');
@@ -57,7 +56,6 @@ export async function updateMyProfile(userId, payload) {
     return customer;
 }
 
-// 10) Gửi hồ sơ KYC cho chính mình
 export async function submitKyc(customerId, userId, documents) {
     const customer = await Customer.findByPk(customerId);
     if (!customer) throw createError(404, 'Không tìm thấy khách hàng');

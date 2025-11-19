@@ -10,14 +10,12 @@ export default (sequelize) => {
         is_active: { type: DataTypes.BOOLEAN, defaultValue: true }
     }, { tableName: 'gl_account', timestamps: false });
 
-
     const JournalEntry = sequelize.define('journal_entry', {
         id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
         ref: { type: DataTypes.STRING, unique: true },
         description: DataTypes.TEXT,
         created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
     }, { tableName: 'journal_entry', timestamps: false });
-
 
     const JournalLine = sequelize.define('journal_line', {
         id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
@@ -27,7 +25,6 @@ export default (sequelize) => {
         dc: { type: DataTypes.ENUM('DEBIT', 'CREDIT'), allowNull: false },
         amount: { type: DataTypes.DECIMAL(18, 2), allowNull: false },
     }, { tableName: 'journal_line', timestamps: false });
-
 
     return { GLAccount, JournalEntry, JournalLine };
 };

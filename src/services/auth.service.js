@@ -2,7 +2,6 @@ import createError from 'http-errors';
 import { User, Customer } from '../models/index.js';
 import { hashPassword, comparePassword, signJwt } from '../utils/crypto.util.js';
 
-
 export async function register({ email, password, full_name }) {
     const exists = await User.findOne({ where: { email } });
     if (exists) throw createError(409, 'Email đã tồn tại');
@@ -12,7 +11,6 @@ export async function register({ email, password, full_name }) {
     const token = signJwt({ sub: user.id, email });
     return { user, customer, token };
 }
-
 
 export async function login({ email, password }) {
     const user = await User.findOne({ where: { email } });

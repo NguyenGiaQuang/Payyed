@@ -1,7 +1,6 @@
 import createError from 'http-errors';
 import { verifyJwt } from '../utils/crypto.util.js';
 
-
 export function auth(required = true) {
     return (req, res, next) => {
         const token = req.headers.authorization?.replace('Bearer ', '');

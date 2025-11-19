@@ -1,4 +1,3 @@
-// src/routes/account.routes.js
 import { Router } from 'express';
 import { AccountController } from '../controllers/account.controller.js';
 import { auth } from '../middlewares/auth.middleware.js';

@@ -1,4 +1,3 @@
-// src/controllers/account.controller.js
 import {
     listMyAccounts,
     getAccountDetail,
@@ -15,7 +14,6 @@ import {
 } from '../validations/account.validation.js';
 
 export const AccountController = {
-    // 13) GET /api/accounts – danh sách tài khoản của user hiện tại (Customer)
     async listCurrent(req, res, next) {
         try {
             const data = await listMyAccounts(req.user.sub);
@@ -25,7 +23,6 @@ export const AccountController = {
         }
     },
 
-    // GET /api/accounts/detail – xem chi tiết tài khoản, account_id trong body
     async detailByBody(req, res, next) {
         try {
             const { account_id } = await accountDetailBodySchema.validateAsync(req.body);
@@ -36,7 +33,6 @@ export const AccountController = {
         }
     },
 
-    // 15) POST /api/accounts – Staff / Admin tạo tài khoản mới cho khách hàng
     async create(req, res, next) {
         try {
             const payload = await openAccountSchema.validateAsync(req.body);
@@ -47,7 +43,6 @@ export const AccountController = {
         }
     },
 
-    // PATCH /api/accounts/status – Admin cập nhật trạng thái tài khoản (body: account_id + status)
     async updateStatusByBody(req, res, next) {
         try {
             const { account_id, status } = await updateAccountStatusBodySchema.validateAsync(req.body);
@@ -58,7 +53,6 @@ export const AccountController = {
         }
     },
 
-    // POST /api/accounts/statement – sao kê tài khoản (account_id, from, to trong body)
     async statementByBody(req, res, next) {
         try {
             const { account_id, from, to } = await statementBodySchema.validateAsync(req.body);
@@ -69,7 +63,6 @@ export const AccountController = {
         }
     },
 
-    // alias cũ nếu bạn vẫn muốn dùng /api/accounts/me, /api/accounts/open
     async me(req, res, next) {
         return AccountController.listCurrent(req, res, next);
     },

@@ -1,7 +1,6 @@
 import createError from 'http-errors';
 import { Customer, KycDocument } from '../models/index.js';
 
-// 11) Danh sách hồ sơ KYC PENDING (Staff)
 export async function listPendingKyc() {
     const customers = await Customer.findAll({
         where: { kyc: 'PENDING' },
@@ -18,7 +17,6 @@ export async function listPendingKyc() {
     return customers;
 }
 
-// 12) Duyệt / từ chối KYC
 export async function approveKyc(customerId, status) {
     const customer = await Customer.findByPk(customerId, {
         include: [{ model: KycDocument, as: 'kyc_documents', required: false }],

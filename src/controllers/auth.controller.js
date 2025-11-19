@@ -2,7 +2,6 @@ import { register, login } from '../services/auth.service.js';
 import { registerSchema, loginSchema } from '../validations/auth.validation.js';
 import { User, Customer, Role, UserRole } from '../models/index.js';
 
-
 export const AuthController = {
     async register(req, res, next) {
         try {

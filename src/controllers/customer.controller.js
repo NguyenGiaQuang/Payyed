@@ -12,7 +12,6 @@ import {
 } from '../validations/customer.validation.js';
 
 export const CustomerController = {
-    // 7) GET /api/customers – Staff/Admin
     async list(req, res, next) {
         try {
             const customers = await listCustomers();
@@ -22,8 +21,6 @@ export const CustomerController = {
         }
     },
 
-    // 🔹 8) GET /api/customers/detail – Staff/Admin
-    // Body: { "customer_id": "<uuid>" }
     async detail(req, res, next) {
         try {
             const { customer_id } = await customerDetailSchema.validateAsync(req.body);
@@ -34,7 +31,6 @@ export const CustomerController = {
         }
     },
 
-    // 9) POST /api/customers – Customer cập nhật profile của chính mình
     async updateProfile(req, res, next) {
         try {
             const payload = await updateProfileSchema.validateAsync(req.body);
@@ -45,8 +41,6 @@ export const CustomerController = {
         }
     },
 
-    // 🔹 10) POST /api/customers/kyc – Customer gửi KYC cho chính mình
-    // Body: { "customer_id": "<uuid>", "documents": [...] }
     async submitKyc(req, res, next) {
         try {
             const { customer_id, documents } = await submitKycSchema.validateAsync(req.body);
