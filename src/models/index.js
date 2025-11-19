@@ -31,6 +31,8 @@ UserRole.belongsTo(User, { foreignKey: 'user_id' });
 UserRole.belongsTo(Role, { foreignKey: 'role_id' });
 User.belongsToMany(Role, { through: UserRole, foreignKey: 'user_id', otherKey: 'role_id' });
 Role.belongsToMany(User, { through: UserRole, foreignKey: 'role_id', otherKey: 'user_id' });
+JournalLine.belongsTo(JournalEntry, { foreignKey: 'entry_id', as: 'entry' });
+JournalLine.belongsTo(GLAccount, { foreignKey: 'gl_account_id', as: 'gl_account' });
 
 // ready to use
 export default {
