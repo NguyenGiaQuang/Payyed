@@ -11,6 +11,7 @@ import beneficiaryRoutes from './beneficiary.routes.js';
 import otpRoutes from './otp.routes.js';
 import securityRoutes from './security.routes.js';
 import notificationRoutes from './notification.routes.js';
+import systemRoutes from './system.routes.js';
 
 const api = Router();
 
@@ -26,5 +27,6 @@ api.use('/beneficiaries', beneficiaryRoutes);
 api.use('/otp', otpRoutes);
 api.use('/security', securityRoutes);
 api.use('/notifications', notificationRoutes);
+api.use('/system', systemRoutes);
 
 export default api;

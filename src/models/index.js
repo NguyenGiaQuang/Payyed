@@ -10,6 +10,7 @@ import defineKycDocument from './kyc.model.js';
 import defineBeneficiary from './beneficiary.model.js';
 import defineAppAudit from './audit.model.js';
 import defineNotification from './notification.model.js';
+import defineOutboxEvent from './outbox_event.model.js';
 
 
 
@@ -25,6 +26,7 @@ export const KycDocument = defineKycDocument(sequelize);
 export const Beneficiary = defineBeneficiary(sequelize);
 export const AppAudit = defineAppAudit(sequelize);
 export const Notification = defineNotification(sequelize);
+export const OutboxEvent = defineOutboxEvent(sequelize);
 
 
 
