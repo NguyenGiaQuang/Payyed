@@ -7,6 +7,7 @@ import customerRoutes from './customer.routes.js';
 import kycRoutes from './kyc.routes.js';
 import journalRoutes from './journal.routes.js';
 import ledgerRoutes from './ledger.routes.js';
+import beneficiaryRoutes from './beneficiary.routes.js';
 
 const api = Router();
 
@@ -17,6 +18,7 @@ api.use('/customers', customerRoutes);
 api.use('/kyc', kycRoutes);
 api.use('/', adminRoutes); // /roles, /users/assign-role
 api.use('/journals', journalRoutes);
-api.use('/ledger', ledgerRoutes); 
+api.use('/ledger', ledgerRoutes);
+api.use('/beneficiaries', beneficiaryRoutes);
 
 export default api;
