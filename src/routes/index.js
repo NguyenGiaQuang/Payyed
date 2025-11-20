@@ -10,6 +10,7 @@ import ledgerRoutes from './ledger.routes.js';
 import beneficiaryRoutes from './beneficiary.routes.js';
 import otpRoutes from './otp.routes.js';
 import securityRoutes from './security.routes.js';
+import notificationRoutes from './notification.routes.js';
 
 const api = Router();
 
@@ -24,5 +25,6 @@ api.use('/ledger', ledgerRoutes);
 api.use('/beneficiaries', beneficiaryRoutes);
 api.use('/otp', otpRoutes);
 api.use('/security', securityRoutes);
+api.use('/notifications', notificationRoutes);
 
 export default api;

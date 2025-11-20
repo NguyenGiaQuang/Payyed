@@ -9,6 +9,7 @@ import defineMisc from './misc.model.js';
 import defineKycDocument from './kyc.model.js';
 import defineBeneficiary from './beneficiary.model.js';
 import defineAppAudit from './audit.model.js';
+import defineNotification from './notification.model.js';
 
 
 
@@ -23,6 +24,7 @@ export const Misc = defineMisc; // (nếu cần mở rộng)
 export const KycDocument = defineKycDocument(sequelize);
 export const Beneficiary = defineBeneficiary(sequelize);
 export const AppAudit = defineAppAudit(sequelize);
+export const Notification = defineNotification(sequelize);
 
 
 
@@ -56,5 +58,5 @@ export default {
     User, Role, Permission, UserRole,
     Customer, Account, AccountLimit, Beneficiary,
     GLAccount, JournalEntry, JournalLine,
-    Transfer, IdempotencyKey, KycDocument,
+    Transfer, IdempotencyKey, KycDocument, Notification,
 };
