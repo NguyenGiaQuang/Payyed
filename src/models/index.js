@@ -8,6 +8,8 @@ import defineTransfer from './transfer.model.js';
 import defineMisc from './misc.model.js';
 import defineKycDocument from './kyc.model.js';
 import defineBeneficiary from './beneficiary.model.js';
+import defineAppAudit from './audit.model.js';
+
 
 
 // Khởi tạo models
@@ -20,6 +22,8 @@ export const { Transfer, IdempotencyKey } = defineTransfer(sequelize, { Account 
 export const Misc = defineMisc; // (nếu cần mở rộng)
 export const KycDocument = defineKycDocument(sequelize);
 export const Beneficiary = defineBeneficiary(sequelize);
+export const AppAudit = defineAppAudit(sequelize);
+
 
 
 // Associations tối thiểu

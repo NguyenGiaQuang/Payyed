@@ -8,6 +8,8 @@ import kycRoutes from './kyc.routes.js';
 import journalRoutes from './journal.routes.js';
 import ledgerRoutes from './ledger.routes.js';
 import beneficiaryRoutes from './beneficiary.routes.js';
+import otpRoutes from './otp.routes.js';
+import securityRoutes from './security.routes.js';
 
 const api = Router();
 
@@ -20,5 +22,7 @@ api.use('/', adminRoutes); // /roles, /users/assign-role
 api.use('/journals', journalRoutes);
 api.use('/ledger', ledgerRoutes);
 api.use('/beneficiaries', beneficiaryRoutes);
+api.use('/otp', otpRoutes);
+api.use('/security', securityRoutes);
 
 export default api;
