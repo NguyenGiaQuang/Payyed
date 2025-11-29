@@ -19,10 +19,21 @@ export const AuthController = {
     },
     async me(req, res, next) {
         try {
-            const user = await User.findByPk(req.user.sub, { attributes: ['id', 'email', 'is_active', 'created_at'] });
-            const customer = await Customer.findOne({ where: { user_id: req.user.sub }, attributes: ['id', 'full_name', 'kyc'] });
-            const userRoles = await UserRole.findAll({ where: { user_id: req.user.sub }, include: [{ model: Role }] });
+            const user = await User.findByPk(req.user.sub, {
+                attributes: ['id', 'email', 'is_active', 'created_at']
+            });
+
+            const customer = await Customer.findOne({
+                where: { user_id: req.user.sub },
+                // lấy toàn bộ field customer
+            });
+
+            const userRoles = await UserRole.findAll({
+                where: { user_id: req.user.sub },
+                include: [{ model: Role }]
+            });
             const roles = userRoles.map(ur => ur.role?.code).filter(Boolean);
+
             res.json({ user, customer, roles });
         } catch (e) { next(e); }
     },
