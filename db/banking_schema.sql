@@ -326,6 +326,13 @@ ALTER TABLE kyc_document
 ADD CONSTRAINT uq_kyc_per_type_per_customer
 UNIQUE (customer_id, doc_type);
 
+ALTER TABLE account
+ADD COLUMN is_default BOOLEAN NOT NULL DEFAULT FALSE;
+
+CREATE UNIQUE INDEX uq_default_account_per_customer
+ON account(customer_id)
+WHERE is_default = TRUE;
+
 
 -- =============================================================
 -- Notes:

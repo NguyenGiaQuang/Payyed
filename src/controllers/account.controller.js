@@ -1,9 +1,12 @@
+// src/controllers/account.controller.js
 import {
     listMyAccounts,
     getAccountDetail,
     openAccount,
     updateAccountStatus,
     getAccountStatement,
+    getDefaultAccount,
+    setDefaultAccount,
 } from '../services/account.service.js';
 
 import {
@@ -11,6 +14,7 @@ import {
     accountDetailBodySchema,
     updateAccountStatusBodySchema,
     statementBodySchema,
+    setDefaultAccountSchema,
 } from '../validations/account.validation.js';
 
 export const AccountController = {
@@ -25,7 +29,8 @@ export const AccountController = {
 
     async detailByBody(req, res, next) {
         try {
-            const { account_id } = await accountDetailBodySchema.validateAsync(req.body);
+            const { account_id } =
+                await accountDetailBodySchema.validateAsync(req.body);
             const acc = await getAccountDetail(account_id, req.user.sub);
             res.json(acc);
         } catch (e) {
@@ -36,7 +41,7 @@ export const AccountController = {
     async create(req, res, next) {
         try {
             const payload = await openAccountSchema.validateAsync(req.body);
-            const acc = await openAccount(payload);
+            const acc = await openAccount(req.user.sub, payload); // ⭐ truyền userId
             res.status(201).json(acc);
         } catch (e) {
             next(e);
@@ -45,7 +50,8 @@ export const AccountController = {
 
     async updateStatusByBody(req, res, next) {
         try {
-            const { account_id, status } = await updateAccountStatusBodySchema.validateAsync(req.body);
+            const { account_id, status } =
+                await updateAccountStatusBodySchema.validateAsync(req.body);
             const acc = await updateAccountStatus(account_id, status);
             res.json(acc);
         } catch (e) {
@@ -55,19 +61,36 @@ export const AccountController = {
 
     async statementByBody(req, res, next) {
         try {
-            const { account_id, from, to } = await statementBodySchema.validateAsync(req.body);
-            const result = await getAccountStatement(account_id, { from, to }, req.user.sub);
+            const { account_id, from, to } =
+                await statementBodySchema.validateAsync(req.body);
+            const result = await getAccountStatement(
+                account_id,
+                { from, to },
+                req.user.sub
+            );
             res.json(result);
         } catch (e) {
             next(e);
         }
     },
 
-    async me(req, res, next) {
-        return AccountController.listCurrent(req, res, next);
+    async getDefault(req, res, next) {
+        try {
+            const acc = await getDefaultAccount(req.user.sub);
+            res.json(acc);
+        } catch (e) {
+            next(e);
+        }
     },
 
-    async open(req, res, next) {
-        return AccountController.create(req, res, next);
+    async setDefault(req, res, next) {
+        try {
+            const { account_id } =
+                await setDefaultAccountSchema.validateAsync(req.body);
+            const acc = await setDefaultAccount(req.user.sub, account_id);
+            res.json(acc);
+        } catch (e) {
+            next(e);
+        }
     },
 };

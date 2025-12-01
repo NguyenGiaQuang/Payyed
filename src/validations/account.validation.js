@@ -1,26 +1,31 @@
+// src/validations/account.validation.js
 import Joi from 'joi';
 
 export const openAccountSchema = Joi.object({
-    customer_id: Joi.string().guid().required(),
+    // CUSTOMER: có thể bỏ qua customer_id
+    // STAFF/ADMIN: phải truyền customer_id, sẽ được kiểm tra ở service
+    customer_id: Joi.string().guid().optional(),
     account_no: Joi.string().required(),
     type: Joi.string().valid('CURRENT', 'SAVINGS', 'WALLET').required(),
     currency: Joi.string().valid('VND', 'USD').default('VND'),
 });
 
-// Dùng cho GET /api/accounts/detail
 export const accountDetailBodySchema = Joi.object({
     account_id: Joi.string().guid().required(),
 });
 
-// Dùng cho PATCH /api/accounts/status
 export const updateAccountStatusBodySchema = Joi.object({
     account_id: Joi.string().guid().required(),
     status: Joi.string().valid('ACTIVE', 'FROZEN', 'CLOSED').required(),
 });
 
-// Dùng cho POST /api/accounts/statement
 export const statementBodySchema = Joi.object({
     account_id: Joi.string().guid().required(),
     from: Joi.date().iso().optional(),
     to: Joi.date().iso().optional(),
+});
+
+// Đặt tài khoản mặc định
+export const setDefaultAccountSchema = Joi.object({
+    account_id: Joi.string().guid().required(),
 });
