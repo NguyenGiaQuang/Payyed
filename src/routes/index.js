@@ -12,6 +12,7 @@ import otpRoutes from './otp.routes.js';
 import securityRoutes from './security.routes.js';
 import notificationRoutes from './notification.routes.js';
 import systemRoutes from './system.routes.js';
+import uploadRoutes from './upload.routes.js';
 
 const api = Router();
 
@@ -28,5 +29,6 @@ api.use('/otp', otpRoutes);
 api.use('/security', securityRoutes);
 api.use('/notifications', notificationRoutes);
 api.use('/system', systemRoutes);
+api.use('/uploads', uploadRoutes);
 
 export default api;

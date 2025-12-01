@@ -4,6 +4,8 @@ import cors from 'cors';
 import { assertDbConnection } from './config/database.js';
 import api from './routes/index.js';
 import { errorHandler } from './middlewares/error.middleware.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
@@ -16,6 +18,13 @@ app.use(
     })
 );
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, '..', 'uploads'))
+);
 
 app.use(express.json());
 
