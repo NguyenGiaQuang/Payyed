@@ -58,20 +58,20 @@ export async function changeEmail(userId, { current_password, new_email }) {
     const user = await User.findByPk(userId);
     if (!user) throw createError(404, 'Không tìm thấy user');
 
-    // kiểm tra mật khẩu hiện tại
     const ok = await comparePassword(current_password, user.password_hash);
-    if (!ok) throw createError(401, 'Mật khẩu hiện tại không đúng');
+    if (!ok) {
+        throw createError(400, 'Mật khẩu hiện tại không đúng');
+    }
 
-    // kiểm tra email mới đã tồn tại chưa
     const exists = await User.findOne({ where: { email: new_email } });
     if (exists && exists.id !== user.id) {
-        throw createError(409, 'Email mới đã được sử dụng');
+        throw createError(400, 'Email mới đã tồn tại');
     }
 
     user.email = new_email;
     await user.save();
 
-    // vì JWT của bạn đang chứa email, nên nên cấp token mới
+    // JWT của bạn có chứa email -> nên cấp token mới
     const token = signJwt({ sub: user.id, email: user.email });
 
     return { user, token };
@@ -83,12 +83,13 @@ export async function changePassword(userId, { current_password, new_password })
     if (!user) throw createError(404, 'Không tìm thấy user');
 
     const ok = await comparePassword(current_password, user.password_hash);
-    if (!ok) throw createError(401, 'Mật khẩu hiện tại không đúng');
+    if (!ok) {
+        throw createError(400, 'Mật khẩu hiện tại không đúng');
+    }
 
     const new_hash = await hashPassword(new_password);
     user.password_hash = new_hash;
     await user.save();
 
-    // đơn giản trả message; nếu muốn có thể tạo token mới
     return { message: 'Đổi mật khẩu thành công' };
 }
