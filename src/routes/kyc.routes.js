@@ -7,5 +7,5 @@ const r = Router();
 
 r.get('/pending', auth(true), requireRole(['STAFF']), KycController.pending);
 r.patch('/approve', auth(true), requireRole(['STAFF']), KycController.approve);
-
+r.get('/me', auth(true), requireRole(['CUSTOMER']), KycController.me);
 export default r;

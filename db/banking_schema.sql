@@ -322,6 +322,11 @@ ALTER TABLE account ADD CONSTRAINT uq_account_no UNIQUE (account_no);
 ALTER TABLE role ADD CONSTRAINT uq_role_code UNIQUE (code);
 ALTER TABLE permission ADD CONSTRAINT uq_permission_code UNIQUE (code);
 
+ALTER TABLE kyc_document
+ADD CONSTRAINT uq_kyc_per_type_per_customer
+UNIQUE (customer_id, doc_type);
+
+
 -- =============================================================
 -- Notes:
 -- - ACID: Use transactions in application code (BEGIN ... COMMIT) with
