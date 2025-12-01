@@ -1,5 +1,5 @@
-import { register, login } from '../services/auth.service.js';
-import { registerSchema, loginSchema } from '../validations/auth.validation.js';
+import { register, login, changeEmail, changePassword } from '../services/auth.service.js';
+import { registerSchema, loginSchema, changeEmailSchema, changePasswordSchema } from '../validations/auth.validation.js';
 import { User, Customer, Role, UserRole } from '../models/index.js';
 
 export const AuthController = {
@@ -37,12 +37,29 @@ export const AuthController = {
             res.json({ user, customer, roles });
         } catch (e) { next(e); }
     },
-    async logout(req, res, next) {
+    async changeEmail(req, res, next) {
         try {
-            // JWT dạng Bearer là stateless, client chỉ cần xoá token
-            // Nếu bạn set cookie, có thể xoá cookie ở đây:
-            res.clearCookie?.('token');
-            res.json({ ok: true, message: 'Logged out' });
+            const payload = await changeEmailSchema.validateAsync(req.body);
+            const data = await changeEmail(req.user.sub, payload);
+            res.json(data);
         } catch (e) { next(e); }
-    }
+    },
+
+    // 2) Đổi mật khẩu
+    async changePassword(req, res, next) {
+        try {
+            const payload = await changePasswordSchema.validateAsync(req.body);
+            const data = await changePassword(req.user.sub, payload);
+            res.json(data);
+        } catch (e) { next(e); }
+    },
+    
+    async logout(req, res, next) {
+    try {
+        // JWT dạng Bearer là stateless, client chỉ cần xoá token
+        // Nếu bạn set cookie, có thể xoá cookie ở đây:
+        res.clearCookie?.('token');
+        res.json({ ok: true, message: 'Logged out' });
+    } catch (e) { next(e); }
+}
 };
