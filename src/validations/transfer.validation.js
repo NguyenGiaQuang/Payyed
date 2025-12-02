@@ -1,3 +1,4 @@
+// src/validations/transfer.validation.js
 import Joi from 'joi';
 
 export const internalTransferSchema = Joi.object({
@@ -22,7 +23,9 @@ export const transferDetailBodySchema = Joi.object({
     transfer_id: Joi.string().guid().required(),
 });
 
+// 🔄 Sửa lại để verify OTP cho transfer dùng request_id + otp_code
 export const otpVerifySchema = Joi.object({
+    request_id: Joi.string().required(),
     otp_code: Joi.string().length(6).required(),
 });
 

@@ -1,8 +1,8 @@
+// src/controllers/transfer.controller.js
 import {
     createInternalTransfer,
     listTransfers,
     getTransferDetail,
-    verifyTransferOtp,
     createExternalTransfer,
     calcTransferFee,
 } from '../services/transfer.service.js';
@@ -15,6 +15,8 @@ import {
     externalTransferSchema,
     transferFeeSchema,
 } from '../validations/transfer.validation.js';
+
+import { verifyOtp as verifyOtpService } from '../services/otp.service.js';
 
 export const TransferController = {
     async createInternal(req, res, next) {
@@ -47,10 +49,11 @@ export const TransferController = {
         }
     },
 
+    // 🔄 Verify OTP cho chuyển tiền: dùng otp.service chung
     async verifyOtp(req, res, next) {
         try {
-            const { otp_code } = await otpVerifySchema.validateAsync(req.body);
-            const result = await verifyTransferOtp(req.user.sub, otp_code);
+            const { request_id, otp_code } = await otpVerifySchema.validateAsync(req.body);
+            const result = await verifyOtpService(req.user.sub, { request_id, otp_code });
             res.json(result);
         } catch (e) {
             next(e);
