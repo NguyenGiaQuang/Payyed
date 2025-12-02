@@ -137,32 +137,33 @@ export async function updateAccountStatus(accountId, status) {
     return account;
 }
 
-// Sao kê tài khoản
+// Sao kê tài khoản (có số dư đầu kỳ, cuối kỳ, running balance)
 export async function getAccountStatement(accountId, { from, to }, userId) {
     const account = await Account.findByPk(accountId);
     if (!account) throw createError(404, 'Không tìm thấy tài khoản');
 
     await ensureCanViewAccount(account, userId);
 
-    const whereEntry = {};
-    if (from) {
-        whereEntry.created_at = { [Op.gte]: new Date(from) };
-    }
-    if (to) {
-        whereEntry.created_at = {
-            ...(whereEntry.created_at || {}),
-            [Op.lte]: new Date(to),
-        };
+    // Chuẩn hóa thời gian
+    const fromDate = from ? new Date(from) : null;
+    const toDate = to ? new Date(to) : null;
+
+    // 1) Lấy tất cả journal line của account để tính opening/closing balance
+    const whereEntryForBalance = {};
+    if (toDate) {
+        whereEntryForBalance.created_at = { [Op.lte]: toDate };
     }
 
-    const lines = await JournalLine.findAll({
+    const linesForBalance = await JournalLine.findAll({
         where: { customer_account_id: account.id },
         include: [
             {
                 model: JournalEntry,
                 as: 'entry',
                 required: true,
-                where: Object.keys(whereEntry).length ? whereEntry : undefined,
+                where: Object.keys(whereEntryForBalance).length
+                    ? whereEntryForBalance
+                    : undefined,
             },
             {
                 model: GLAccount,
@@ -176,22 +177,111 @@ export async function getAccountStatement(accountId, { from, to }, userId) {
         ],
     });
 
+    let openingBalance = 0;
+    let closingBalance = 0;
+
+    for (const l of linesForBalance) {
+        const glCode = l.gl_account?.code || null;
+        // Chỉ tính cho tài khoản tiền gửi khách hàng
+        if (glCode !== '201001') continue;
+
+        const amountNum = Number(l.amount || 0);
+        let delta = 0;
+        if (l.dc === 'CREDIT') delta = amountNum;
+        else if (l.dc === 'DEBIT') delta = -amountNum;
+
+        const entryDate = l.entry.created_at;
+
+        // Luôn cộng vào closingBalance (tất cả đến toDate)
+        closingBalance += delta;
+
+        // Nếu có fromDate: openingBalance là số dư trước from
+        if (fromDate && entryDate < fromDate) {
+            openingBalance += delta;
+        }
+    }
+
+    // 2) Lấy các dòng trong khoảng [from, to] để trả về cho client
+    const whereEntryForItems = {};
+    if (fromDate) {
+        whereEntryForItems.created_at = { [Op.gte]: fromDate };
+    }
+    if (toDate) {
+        whereEntryForItems.created_at = {
+            ...(whereEntryForItems.created_at || {}),
+            [Op.lte]: toDate,
+        };
+    }
+
+    const linesInRange = await JournalLine.findAll({
+        where: { customer_account_id: account.id },
+        include: [
+            {
+                model: JournalEntry,
+                as: 'entry',
+                required: true,
+                where: Object.keys(whereEntryForItems).length
+                    ? whereEntryForItems
+                    : undefined,
+            },
+            {
+                model: GLAccount,
+                as: 'gl_account',
+                required: false,
+            },
+        ],
+        order: [
+            [{ model: JournalEntry, as: 'entry' }, 'created_at', 'ASC'],
+            ['id', 'ASC'],
+        ],
+    });
+
+    // 3) Tính running balance cho từng dòng
+    let runningBalance = openingBalance;
+    const items = linesInRange.map((l) => {
+        const glCode = l.gl_account?.code || null;
+        const amountNum = Number(l.amount || 0);
+        let delta = 0;
+
+        if (glCode === '201001') {
+            if (l.dc === 'CREDIT') delta = amountNum;
+            else if (l.dc === 'DEBIT') delta = -amountNum;
+        }
+
+        runningBalance += delta;
+
+        let direction = 'NONE';
+        if (delta > 0) direction = 'IN';
+        else if (delta < 0) direction = 'OUT';
+
+        return {
+            id: l.id,
+            date: l.entry.created_at,
+            description: l.entry.description,
+            gl_account: glCode,
+            dc: l.dc,
+            amount: l.amount,
+            direction,
+            delta,           // thay đổi số dư do dòng này (có thể bỏ nếu không cần)
+            balance_after: runningBalance, // running balance sau dòng này
+        };
+    });
+
     return {
         account: {
             id: account.id,
             account_no: account.account_no,
             currency: account.currency,
             status: account.status,
+            current_balance: account.balance, // số dư hiện tại trong bảng account
         },
-        filter: { from: from || null, to: to || null },
-        items: lines.map((l) => ({
-            id: l.id,
-            date: l.entry.created_at,
-            description: l.entry.description,
-            gl_account: l.gl_account?.code || null,
-            dc: l.dc,
-            amount: l.amount,
-        })),
+        filter: {
+            from: fromDate || null,
+            to: toDate || null,
+        },
+        opening_balance: openingBalance,
+        closing_balance: closingBalance,
+        items,
     };
 }
 
