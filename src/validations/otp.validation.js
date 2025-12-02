@@ -1,14 +1,14 @@
+// src/validations/otp.validation.js
 import Joi from 'joi';
 
-// 31) Gửi yêu cầu OTP
 export const otpRequestSchema = Joi.object({
-    channel: Joi.string().valid('EMAIL', 'SMS').required(),
+    channel: Joi.string().valid('EMAIL').required(),
     purpose: Joi.string()
         .valid('TRANSFER', 'LOGIN', 'CHANGE_PASSWORD')
         .required(),
+    email: Joi.string().email().required(),
 });
 
-// 32) Xác thực OTP
 export const otpVerifySchema = Joi.object({
     request_id: Joi.string().required(),
     otp_code: Joi.string().length(6).required(),
