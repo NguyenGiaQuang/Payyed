@@ -29,3 +29,8 @@ export const statementBodySchema = Joi.object({
 export const setDefaultAccountSchema = Joi.object({
     account_id: Joi.string().guid().required(),
 });
+
+export const recentTransactionsBodySchema = Joi.object({
+    account_id: Joi.string().guid().required(),
+    limit: Joi.number().integer().min(1).max(50).default(10),
+});

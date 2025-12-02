@@ -285,6 +285,84 @@ export async function getAccountStatement(accountId, { from, to }, userId) {
     };
 }
 
+export async function getRecentTransactions(accountId, limit, userId) {
+    const account = await Account.findByPk(accountId);
+    if (!account) throw createError(404, 'Không tìm thấy tài khoản');
+
+    await ensureCanViewAccount(account, userId);
+
+    const lines = await JournalLine.findAll({
+        where: { customer_account_id: account.id },
+        include: [
+            {
+                model: JournalEntry,
+                as: 'entry',
+                required: true,
+            },
+            {
+                model: GLAccount,
+                as: 'gl_account',
+                required: false,
+            },
+        ],
+        order: [
+            [{ model: JournalEntry, as: 'entry' }, 'created_at', 'DESC'],
+            ['id', 'DESC'],
+        ],
+        limit,
+    });
+
+    const items = lines.map((l) => {
+        const glCode = l.gl_account?.code || null;
+        const amount = Number(l.amount || 0);
+
+        let delta = 0;
+        let direction = 'NONE';
+        let in_amount = null;
+        let out_amount = null;
+
+        // Chỉ áp dụng logic cho GL 201001 (Customer Deposits)
+        if (glCode === '201001') {
+            if (l.dc === 'CREDIT') {
+                delta = amount;
+                direction = 'IN';
+                in_amount = amount;
+            } else if (l.dc === 'DEBIT') {
+                delta = -amount;
+                direction = 'OUT';
+                out_amount = amount;
+            }
+        }
+
+        return {
+            id: l.id,
+            date: l.entry.created_at,
+            description: l.entry.description,
+            gl_account: glCode,
+            dc: l.dc,
+            amount: amount.toFixed(2),
+
+            // Thông tin mới:
+            direction,      // IN / OUT / NONE
+            delta,          // +500000 hoặc -300000
+            in_amount,      // null hoặc số dương
+            out_amount,     // null hoặc số dương
+        };
+    });
+
+    return {
+        account: {
+            id: account.id,
+            account_no: account.account_no,
+            currency: account.currency,
+            status: account.status,
+        },
+        limit,
+        items,
+    };
+}
+
+
 // Lấy tài khoản mặc định
 export async function getDefaultAccount(userId) {
     const customer = await Customer.findOne({ where: { user_id: userId } });

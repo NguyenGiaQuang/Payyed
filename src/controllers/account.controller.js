@@ -7,6 +7,7 @@ import {
     getAccountStatement,
     getDefaultAccount,
     setDefaultAccount,
+    getRecentTransactions,
 } from '../services/account.service.js';
 
 import {
@@ -15,6 +16,7 @@ import {
     updateAccountStatusBodySchema,
     statementBodySchema,
     setDefaultAccountSchema,
+    recentTransactionsBodySchema,
 } from '../validations/account.validation.js';
 
 export const AccountController = {
@@ -89,6 +91,23 @@ export const AccountController = {
                 await setDefaultAccountSchema.validateAsync(req.body);
             const acc = await setDefaultAccount(req.user.sub, account_id);
             res.json(acc);
+        } catch (e) {
+            next(e);
+        }
+    },
+
+    async recentTransactions(req, res, next) {
+        try {
+            const { account_id, limit } =
+                await recentTransactionsBodySchema.validateAsync(req.body);
+
+            const result = await getRecentTransactions(
+                account_id,
+                limit,
+                req.user.sub,
+            );
+
+            res.json(result);
         } catch (e) {
             next(e);
         }
