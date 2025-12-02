@@ -13,6 +13,7 @@ import securityRoutes from './security.routes.js';
 import notificationRoutes from './notification.routes.js';
 import systemRoutes from './system.routes.js';
 import uploadRoutes from './upload.routes.js';
+import cashTransactionRoutes from './cash_transaction.routes.js';
 
 const api = Router();
 
@@ -30,5 +31,6 @@ api.use('/security', securityRoutes);
 api.use('/notifications', notificationRoutes);
 api.use('/system', systemRoutes);
 api.use('/uploads', uploadRoutes);
+api.use('/cash-transactions', cashTransactionRoutes);
 
 export default api;

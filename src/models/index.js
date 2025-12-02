@@ -11,6 +11,7 @@ import defineBeneficiary from './beneficiary.model.js';
 import defineAppAudit from './audit.model.js';
 import defineNotification from './notification.model.js';
 import defineOutboxEvent from './outbox_event.model.js';
+import CashTransaction from './cash_transaction.js';
 
 
 
@@ -27,6 +28,10 @@ export const Beneficiary = defineBeneficiary(sequelize);
 export const AppAudit = defineAppAudit(sequelize);
 export const Notification = defineNotification(sequelize);
 export const OutboxEvent = defineOutboxEvent(sequelize);
+export {
+  // các model cũ...
+  CashTransaction,
+};
 
 
 
