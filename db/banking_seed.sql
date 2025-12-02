@@ -17,26 +17,44 @@ INSERT INTO permission (code, description) VALUES
  ('CREATE_TRANSFER','Tạo giao dịch chuyển tiền'),
  ('APPROVE_KYC','Duyệt hồ sơ KYC'),
  ('VIEW_AUDIT','Xem nhật ký kiểm toán'),
- ('MANAGE_USER','Quản trị người dùng')
+ ('MANAGE_USER','Quản trị người dùng'),
+ ('REQUEST_CASH','Tạo yêu cầu nạp/rút tiền'),
+ ('APPROVE_CASH','Duyệt yêu cầu nạp/rút tiền')
 ON CONFLICT (code) DO NOTHING;
 
+-- INSERT INTO role_permission (role_id, permission_id)
+-- SELECT r.id, p.id
+-- FROM role r
+-- JOIN permission p ON p.code IN (
+--   CASE r.code
+--     WHEN 'CUSTOMER' THEN 'VIEW_SELF_ACCOUNT'
+--     WHEN 'CUSTOMER' THEN 'CREATE_TRANSFER'
+--   END
+-- )
+-- WHERE r.code = 'CUSTOMER'
+-- ON CONFLICT DO NOTHING;
+
+-- Grant CUSTOMER permissions (xem tài khoản, chuyển tiền, yêu cầu nạp/rút)
 INSERT INTO role_permission (role_id, permission_id)
 SELECT r.id, p.id
 FROM role r
-JOIN permission p ON p.code IN (
-  CASE r.code
-    WHEN 'CUSTOMER' THEN 'VIEW_SELF_ACCOUNT'
-    WHEN 'CUSTOMER' THEN 'CREATE_TRANSFER'
-  END
-)
+JOIN permission p ON p.code IN ('VIEW_SELF_ACCOUNT','CREATE_TRANSFER','REQUEST_CASH')
 WHERE r.code = 'CUSTOMER'
 ON CONFLICT DO NOTHING;
 
--- Grant STAFF permissions
+-- -- Grant STAFF permissions
+-- INSERT INTO role_permission (role_id, permission_id)
+-- SELECT r.id, p.id
+-- FROM role r
+-- JOIN permission p ON p.code IN ('APPROVE_KYC','VIEW_AUDIT')
+-- WHERE r.code = 'STAFF'
+-- ON CONFLICT DO NOTHING;
+
+-- Grant STAFF permissions (duyệt KYC, xem audit, duyệt nạp/rút)
 INSERT INTO role_permission (role_id, permission_id)
 SELECT r.id, p.id
 FROM role r
-JOIN permission p ON p.code IN ('APPROVE_KYC','VIEW_AUDIT')
+JOIN permission p ON p.code IN ('APPROVE_KYC','VIEW_AUDIT','APPROVE_CASH')
 WHERE r.code = 'STAFF'
 ON CONFLICT DO NOTHING;
 

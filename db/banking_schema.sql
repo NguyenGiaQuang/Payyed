@@ -29,6 +29,14 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
+  CREATE TYPE cash_txn_type AS ENUM ('DEPOSIT','WITHDRAW');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TYPE cash_txn_status AS ENUM ('PENDING','APPROVED','REJECTED','CANCELED');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
   CREATE TYPE kyc_status AS ENUM ('PENDING','APPROVED','REJECTED');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
@@ -250,6 +258,40 @@ CREATE TABLE IF NOT EXISTS transfer (
 CREATE INDEX IF NOT EXISTS idx_transfer_from ON transfer(from_account_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_transfer_to   ON transfer(to_account_id, created_at);
 
+CREATE TABLE IF NOT EXISTS cash_transaction (
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  customer_id           UUID NOT NULL REFERENCES customer(id) ON DELETE RESTRICT,
+  account_id            UUID NOT NULL REFERENCES account(id)  ON DELETE RESTRICT,
+
+  type                  cash_txn_type   NOT NULL,         -- 'DEPOSIT' / 'WITHDRAW'
+  status                cash_txn_status NOT NULL DEFAULT 'PENDING',
+
+  amount                NUMERIC(18,2) NOT NULL CHECK (amount > 0),
+  currency              currency_code NOT NULL,           -- nên khớp với account.currency (check ở service)
+  channel               TEXT,                             -- 'MOBILE','WEB','BRANCH',...
+
+  requested_by_user_id  UUID NOT NULL REFERENCES app_user(id),
+  approved_by_user_id   UUID        REFERENCES app_user(id),
+
+  requested_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  approved_at           TIMESTAMPTZ,
+
+  journal_entry_id      UUID REFERENCES journal_entry(id), -- set khi STAFF duyệt và tạo bút toán
+  idem_key              TEXT UNIQUE,                       -- optional: chống spam/click nhiều lần
+
+  customer_note         TEXT,
+  staff_note            TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_cash_txn_status
+  ON cash_transaction(status, requested_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_cash_txn_account
+  ON cash_transaction(account_id, status);
+
+CREATE INDEX IF NOT EXISTS idx_cash_txn_customer
+  ON cash_transaction(customer_id, status);
 -- =============================================================
 -- 7) SUPPORT TABLES: Idempotency, Outbox, OTP, Notification, Audit
 -- =============================================================
