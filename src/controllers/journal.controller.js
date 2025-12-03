@@ -5,7 +5,7 @@ import {
 
 import {
     journalListQuerySchema,
-    journalDetailBodySchema,
+    journalDetailBodySchema, // schema này chỉ cần có field entry_id là được
 } from '../validations/journal.validation.js';
 
 export const JournalController = {
@@ -20,10 +20,15 @@ export const JournalController = {
         }
     },
 
-    // 25) GET /api/journals/detail – chi tiết bút toán kép (ID trong body)
+    // 25) GET /api/journals/detail – chi tiết bút toán kép (ID qua query)
     async detailByBody(req, res, next) {
         try {
-            const { entry_id } = await journalDetailBodySchema.validateAsync(req.body);
+            // Ưu tiên lấy từ body (nếu sau này có client khác dùng),
+            // còn không thì lấy từ query (?entry_id=...)
+            const source = Object.keys(req.body || {}).length ? req.body : req.query;
+
+            const { entry_id } = await journalDetailBodySchema.validateAsync(source);
+
             const entry = await getJournalEntryDetail(entry_id);
             res.json(entry);
         } catch (e) {
