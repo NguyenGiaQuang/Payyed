@@ -8,5 +8,6 @@ r.post('/login', AuthController.login);
 r.get('/me', auth(true), AuthController.me);
 r.post('/logout', auth(false), AuthController.logout);
 r.patch('/email', auth(true), AuthController.changeEmail);
+r.post('/password', auth(true), AuthController.changePassword);
 r.patch('/password', auth(true), AuthController.changePassword);
 export default r;
