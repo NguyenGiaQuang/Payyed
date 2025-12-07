@@ -6,15 +6,32 @@ export const AuthController = {
     async register(req, res, next) {
         try {
             const payload = await registerSchema.validateAsync(req.body);
-            const result = await register(payload);
-            res.json(result);
+            const { user, customer, token } = await register(payload);
+
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: "lax",
+                maxAge: 2 * 24 * 60 * 60 * 1000
+            });
+
+            res.json({ user, customer });
         } catch (e) { next(e); }
     },
     async login(req, res, next) {
         try {
             const payload = await loginSchema.validateAsync(req.body);
-            const result = await login(payload);
-            res.json(result);
+            const { token } = await login(payload);
+
+            // Gửi cookie
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: false,        // bật true nếu dùng HTTPS
+                sameSite: "lax",
+                maxAge: 2 * 24 * 60 * 60 * 1000 // 2 ngày
+            });
+
+            res.json({ ok: true });
         } catch (e) { next(e); }
     },
     async me(req, res, next) {
@@ -53,13 +70,17 @@ export const AuthController = {
             res.json(data);
         } catch (e) { next(e); }
     },
-    
+
     async logout(req, res, next) {
-    try {
-        // JWT dạng Bearer là stateless, client chỉ cần xoá token
-        // Nếu bạn set cookie, có thể xoá cookie ở đây:
-        res.clearCookie?.('token');
-        res.json({ ok: true, message: 'Logged out' });
-    } catch (e) { next(e); }
-}
+        try {
+            // JWT dạng Bearer là stateless, client chỉ cần xoá token
+            // Nếu bạn set cookie, có thể xoá cookie ở đây:
+            res.clearCookie("token", {
+                httpOnly: true,
+                secure: false,
+                sameSite: "lax"
+            });
+            res.json({ ok: true, message: 'Logged out' });
+        } catch (e) { next(e); }
+    }
 };

@@ -6,6 +6,7 @@ import api from './routes/index.js';
 import { errorHandler } from './middlewares/error.middleware.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -25,6 +26,8 @@ app.use(
   '/uploads',
   express.static(path.join(__dirname, '..', 'uploads'))
 );
+
+app.use(cookieParser());
 
 app.use(express.json());
 
