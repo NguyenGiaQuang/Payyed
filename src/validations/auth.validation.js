@@ -10,13 +10,6 @@ export const loginSchema = Joi.object({
 });
 
 export const changeEmailSchema = Joi.object({
-    current_password: Joi.string()
-        .min(6)
-        .required()
-        .messages({
-            'string.empty': 'Vui lòng nhập mật khẩu hiện tại',
-        }),
-
     new_email: Joi.string()
         .email()
         .required()

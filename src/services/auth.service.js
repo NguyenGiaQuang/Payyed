@@ -54,15 +54,11 @@ export async function login({ email, password }) {
     return { token };
 }
 
-export async function changeEmail(userId, { current_password, new_email }) {
+export async function changeEmail(userId, { new_email }) {
     const user = await User.findByPk(userId);
     if (!user) throw createError(404, 'Không tìm thấy user');
 
-    const ok = await comparePassword(current_password, user.password_hash);
-    if (!ok) {
-        throw createError(400, 'Mật khẩu hiện tại không đúng');
-    }
-
+    // Kiểm tra email mới đã tồn tại chưa
     const exists = await User.findOne({ where: { email: new_email } });
     if (exists && exists.id !== user.id) {
         throw createError(400, 'Email mới đã tồn tại');
@@ -71,7 +67,7 @@ export async function changeEmail(userId, { current_password, new_email }) {
     user.email = new_email;
     await user.save();
 
-    // JWT của bạn có chứa email -> nên cấp token mới
+    // cấp token mới (vì JWT chứa email)
     const token = signJwt({ sub: user.id, email: user.email });
 
     return { user, token };
