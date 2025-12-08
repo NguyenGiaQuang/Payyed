@@ -1,6 +1,7 @@
 import { register, login, changeEmail, changePassword } from '../services/auth.service.js';
 import { registerSchema, loginSchema, changeEmailSchema, changePasswordSchema } from '../validations/auth.validation.js';
 import { User, Customer, Role, UserRole } from '../models/index.js';
+import crypto from 'crypto';
 
 export const AuthController = {
     async register(req, res, next) {
@@ -8,11 +9,22 @@ export const AuthController = {
             const payload = await registerSchema.validateAsync(req.body);
             const { user, customer, token } = await register(payload);
 
+            const csrfToken = crypto.randomBytes(32).toString('hex');
+
             res.cookie("token", token, {
                 httpOnly: true,
                 secure: false,
+                sameSite: "lax",
                 maxAge: 2 * 24 * 60 * 60 * 1000
             });
+
+            res.cookie("csrf_token", csrfToken, {
+                httpOnly: false,
+                secure: false,
+                sameSite: "lax",
+                maxAge: 2 * 24 * 60 * 60 * 1000,
+            });
+
 
             res.json({ user, customer });
         } catch (e) { next(e); }
@@ -22,12 +34,23 @@ export const AuthController = {
             const payload = await loginSchema.validateAsync(req.body);
             const { token } = await login(payload);
 
+            const csrfToken = crypto.randomBytes(32).toString('hex');
+
             // Gửi cookie
             res.cookie("token", token, {
                 httpOnly: true,
                 secure: false,        // bật true nếu dùng HTTPS
+                sameSite: "lax",
                 maxAge: 2 * 24 * 60 * 60 * 1000 // 2 ngày
             });
+
+            res.cookie("csrf_token", csrfToken, {
+                httpOnly: false,
+                secure: false,
+                sameSite: "lax",
+                maxAge: 2 * 24 * 60 * 60 * 1000,
+            });
+
 
             res.json({ ok: true });
         } catch (e) { next(e); }
@@ -76,6 +99,7 @@ export const AuthController = {
             res.clearCookie("token", {
                 httpOnly: true,
                 secure: false,
+                sameSite: "lax",
             });
             res.json({ ok: true, message: 'Logged out' });
         } catch (e) { next(e); }
