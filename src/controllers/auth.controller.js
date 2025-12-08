@@ -11,7 +11,6 @@ export const AuthController = {
             res.cookie("token", token, {
                 httpOnly: true,
                 secure: false,
-                sameSite: "lax",
                 maxAge: 2 * 24 * 60 * 60 * 1000
             });
 
@@ -27,7 +26,6 @@ export const AuthController = {
             res.cookie("token", token, {
                 httpOnly: true,
                 secure: false,        // bật true nếu dùng HTTPS
-                sameSite: "lax",
                 maxAge: 2 * 24 * 60 * 60 * 1000 // 2 ngày
             });
 
@@ -78,7 +76,6 @@ export const AuthController = {
             res.clearCookie("token", {
                 httpOnly: true,
                 secure: false,
-                sameSite: "lax"
             });
             res.json({ ok: true, message: 'Logged out' });
         } catch (e) { next(e); }
